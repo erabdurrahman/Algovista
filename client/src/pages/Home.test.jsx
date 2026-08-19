@@ -12,7 +12,7 @@ describe('Home page', () => {
     )
 
     expect(screen.getByText(/visualize data structures and algorithms/i)).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /start learning/i })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /open learning dashboard/i })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /login\/register/i })).toBeInTheDocument()
   })
 })
