@@ -1,4 +1,5 @@
 const bcrypt = require('bcryptjs')
+const crypto = require('crypto')
 const mongoose = require('mongoose')
 const User = require('../models/User')
 const { signAuthToken } = require('../utils/jwt')
@@ -6,6 +7,24 @@ const { signAuthToken } = require('../utils/jwt')
 const inMemoryUsers = []
 
 const normalizeEmail = (email) => String(email || '').trim().toLowerCase()
+
+const isValidEmail = (email) => {
+  if (!email || email.length > 254) {
+    return false
+  }
+
+  const atIndex = email.indexOf('@')
+  if (atIndex <= 0 || atIndex !== email.lastIndexOf('@')) {
+    return false
+  }
+
+  const domain = email.slice(atIndex + 1)
+  if (!domain || domain.startsWith('.') || domain.endsWith('.')) {
+    return false
+  }
+
+  return domain.includes('.')
+}
 
 const sanitizeUser = (user) => ({
   id: String(user._id || user.id),
@@ -20,7 +39,7 @@ const register = async (req, res) => {
   if (!name || String(name).trim().length < 2) {
     return res.status(400).json({ error: 'Name must be at least 2 characters.' })
   }
-  if (!normalizedEmail || !/^\S+@\S+\.\S+$/.test(normalizedEmail)) {
+  if (!isValidEmail(normalizedEmail)) {
     return res.status(400).json({ error: 'Valid email is required.' })
   }
   if (!password || String(password).length < 8) {
@@ -44,7 +63,7 @@ const register = async (req, res) => {
     }
 
     user = {
-      id: `mem_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`,
+      id: `mem_${Date.now()}_${crypto.randomUUID()}`,
       name: String(name).trim(),
       email: normalizedEmail,
       passwordHash,

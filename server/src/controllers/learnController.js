@@ -1,3 +1,4 @@
+const crypto = require('crypto')
 const mongoose = require('mongoose')
 const Topic = require('../models/Topic')
 const Progress = require('../models/Progress')
@@ -169,6 +170,10 @@ const markTopicCompleted = async (req, res) => {
   const now = new Date()
 
   if (mongoose.connection.readyState === 1) {
+    if (!mongoose.isValidObjectId(topicId)) {
+      return res.status(400).json({ error: 'Invalid topic ID format.' })
+    }
+
     const topic = await Topic.findById(topicId).lean()
     if (!topic) {
       return res.status(404).json({ error: 'Topic not found.' })
@@ -232,21 +237,26 @@ const addSubmission = async (req, res) => {
   const now = new Date()
 
   if (mongoose.connection.readyState === 1) {
-    const topic = await Topic.findById(topicId).lean()
+    if (!mongoose.isValidObjectId(topicId)) {
+      return res.status(400).json({ error: 'Invalid topic ID format.' })
+    }
+
+    const safeTopicId = new mongoose.Types.ObjectId(topicId)
+    const topic = await Topic.findById(safeTopicId).lean()
     if (!topic) {
       return res.status(404).json({ error: 'Topic not found.' })
     }
 
     const submission = await Submission.create({
       userId,
-      topicId,
+      topicId: safeTopicId,
       code: String(code).trim(),
       language: String(language).trim(),
       notes: String(notes || '').trim(),
     })
 
     await Progress.findOneAndUpdate(
-      { userId, topicId },
+      { userId, topicId: safeTopicId },
       {
         $set: { lastPracticedAt: now },
         $setOnInsert: { completionCount: 0, completedAt: null },
@@ -263,7 +273,7 @@ const addSubmission = async (req, res) => {
   }
 
   const submission = {
-    id: `sub_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`,
+    id: `sub_${Date.now()}_${crypto.randomUUID()}`,
     userId,
     topicId,
     code: String(code).trim(),
