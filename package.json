@@ -1,0 +1,23 @@
+{
+  "name": "algovista",
+  "version": "1.0.0",
+  "description": "Final Year project",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm --prefix client run dev\" \"npm --prefix server run dev\"",
+    "build": "npm --prefix client run build",
+    "lint": "npm --prefix client run lint && npm --prefix server run lint",
+    "test": "npm --prefix client run test && npm --prefix server run test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://localhost:26831/erabdurrahman/Algovista"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^10.0.5"
+  },
+  "private": true
+}
