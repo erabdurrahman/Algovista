@@ -1,13 +1,12 @@
 {
   "name": "server",
   "version": "1.0.0",
-  "description": "",
+  "description": "Algovista Express Backend",
   "main": "src/index.js",
   "scripts": {
     "dev": "nodemon src/index.js",
     "start": "node src/index.js",
-    "test": "jest",
-    "lint": "find src -name '*.js' -print0 | xargs -0 -n1 node --check"
+    "lint": "node --check src/index.js"
   },
   "keywords": [],
   "author": "",
@@ -17,16 +16,13 @@
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
-    "express-rate-limit": "^8.6.2",
     "helmet": "^8.3.0",
     "jsonwebtoken": "^9.0.3",
-    "mongoose": "^9.9.3",
     "morgan": "^1.11.0",
+    "mysql2": "^3.12.0",
     "openai": "^7.5.0"
   },
   "devDependencies": {
-    "jest": "^30.4.2",
-    "nodemon": "^3.1.14",
-    "supertest": "^7.2.2"
+    "nodemon": "^3.1.14"
   }
 }

@@ -8,10 +8,11 @@ const asJson = async (response) => {
 
 const authHeaders = (token) => ({
   'Content-Type': 'application/json',
-  ...(token ? { Authorization: 'JWT ' + token } : {}),
+  ...(token ? { Authorization: `Bearer ${token}` } : {}),
 })
 
 export const api = {
+  // Authentication
   async register(payload) {
     const response = await fetch('/api/auth/register', {
       method: 'POST',
@@ -37,35 +38,16 @@ export const api = {
     return asJson(response)
   },
 
-  async listTopics() {
-    const response = await fetch('/api/learn/topics')
-    return asJson(response)
-  },
-
+  // Progress Tracking
   async getProgress(token) {
-    const response = await fetch('/api/learn/progress', {
+    const response = await fetch('/api/progress', {
       headers: authHeaders(token),
     })
     return asJson(response)
   },
 
-  async markTopicComplete(token, topicId) {
-    const response = await fetch(`/api/learn/progress/${topicId}/complete`, {
-      method: 'POST',
-      headers: authHeaders(token),
-    })
-    return asJson(response)
-  },
-
-  async listSubmissions(token) {
-    const response = await fetch('/api/learn/submissions', {
-      headers: authHeaders(token),
-    })
-    return asJson(response)
-  },
-
-  async addSubmission(token, payload) {
-    const response = await fetch('/api/learn/submissions', {
+  async updateProgress(token, payload) {
+    const response = await fetch('/api/progress/update', {
       method: 'POST',
       headers: authHeaders(token),
       body: JSON.stringify(payload),
@@ -73,12 +55,19 @@ export const api = {
     return asJson(response)
   },
 
-  async explainCode(token, code) {
-    const response = await fetch('/api/explain', {
+  // AI Explainer
+  async explain(payload) {
+    const response = await fetch('/api/ai/explain', {
       method: 'POST',
-      headers: authHeaders(token),
-      body: JSON.stringify({ code }),
+      headers: authHeaders(),
+      body: JSON.stringify(payload),
     })
+    return asJson(response)
+  },
+
+  // Algorithms
+  async getAlgorithms() {
+    const response = await fetch('/api/algorithms')
     return asJson(response)
   },
 }
