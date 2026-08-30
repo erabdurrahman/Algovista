@@ -1,9 +1,10 @@
 /**
- * Binary Search Step Generator with Live Metrics
- * Repeatedly divides sorted search space in half.
+ * Binary Search Step Generator
+ * Finds a target within a sorted array by repeatedly dividing the search space in half.
  */
 export function generateBinarySearchSteps(initialArray, target) {
   const steps = []
+  // Ensure array is sorted for binary search
   const arr = [...initialArray].sort((a, b) => a - b)
   const n = arr.length
   const numericTarget = Number(target)
@@ -11,10 +12,6 @@ export function generateBinarySearchSteps(initialArray, target) {
   let low = 0
   let high = n - 1
   let found = false
-
-  let comparisons = 0
-  let arrayAccesses = 0
-  let divisions = 0
 
   steps.push({
     array: [...arr],
@@ -25,22 +22,15 @@ export function generateBinarySearchSteps(initialArray, target) {
     foundIndex: null,
     notFound: false,
     eliminated: [],
-    explanation: `Array sorted for Binary Search: [${arr.join(', ')}]. Searching for ${numericTarget}.`,
+    explanation: `Array sorted for Binary Search: [${arr.join(', ')}]. Searching for target: ${numericTarget}.`,
     codeLine: 1,
     action: 'init',
-    metrics: {
-      comparisons,
-      arrayAccesses,
-      divisions,
-      searchSpaceRemaining: n,
-      swaps: 0,
-      shifts: 0,
-    },
   })
 
   while (low <= high) {
-    divisions++
     const mid = Math.floor((low + high) / 2)
+
+    // Calculate currently eliminated indices outside [low, high]
     const currentEliminated = []
     for (let k = 0; k < n; k++) {
       if (k < low || k > high) currentEliminated.push(k)
@@ -55,21 +45,10 @@ export function generateBinarySearchSteps(initialArray, target) {
       foundIndex: null,
       notFound: false,
       eliminated: [...currentEliminated],
-      explanation: `Search space: [index ${low}..${high}] (${high - low + 1} items). Midpoint is index ${mid} (value: ${arr[mid]}).`,
+      explanation: `Current search space: [index ${low}..${high}]. Midpoint is index ${mid} (value: ${arr[mid]}).`,
       codeLine: 2,
       action: 'calculate-mid',
-      metrics: {
-        comparisons,
-        arrayAccesses,
-        divisions,
-        searchSpaceRemaining: high - low + 1,
-        swaps: 0,
-        shifts: 0,
-      },
     })
-
-    comparisons++
-    arrayAccesses++ // read arr[mid]
 
     steps.push({
       array: [...arr],
@@ -83,14 +62,6 @@ export function generateBinarySearchSteps(initialArray, target) {
       explanation: `Comparing arr[${mid}] (${arr[mid]}) with target (${numericTarget}).`,
       codeLine: 3,
       action: 'compare',
-      metrics: {
-        comparisons,
-        arrayAccesses,
-        divisions,
-        searchSpaceRemaining: high - low + 1,
-        swaps: 0,
-        shifts: 0,
-      },
     })
 
     if (arr[mid] === numericTarget) {
@@ -107,14 +78,6 @@ export function generateBinarySearchSteps(initialArray, target) {
         explanation: `Target ${numericTarget} found at index ${mid}!`,
         codeLine: 4,
         action: 'found',
-        metrics: {
-          comparisons,
-          arrayAccesses,
-          divisions,
-          searchSpaceRemaining: 1,
-          swaps: 0,
-          shifts: 0,
-        },
       })
       break
     } else if (arr[mid] < numericTarget) {
@@ -127,17 +90,9 @@ export function generateBinarySearchSteps(initialArray, target) {
         foundIndex: null,
         notFound: false,
         eliminated: [...currentEliminated],
-        explanation: `arr[${mid}] (${arr[mid]}) < target (${numericTarget}). Discarding left half [${low}..${mid}].`,
+        explanation: `arr[${mid}] (${arr[mid]}) < target (${numericTarget}). Target must be on the right. Discarding left half.`,
         codeLine: 5,
         action: 'search-right',
-        metrics: {
-          comparisons,
-          arrayAccesses,
-          divisions,
-          searchSpaceRemaining: high - (mid + 1) + 1,
-          swaps: 0,
-          shifts: 0,
-        },
       })
       low = mid + 1
     } else {
@@ -150,17 +105,9 @@ export function generateBinarySearchSteps(initialArray, target) {
         foundIndex: null,
         notFound: false,
         eliminated: [...currentEliminated],
-        explanation: `arr[${mid}] (${arr[mid]}) > target (${numericTarget}). Discarding right half [${mid}..${high}].`,
+        explanation: `arr[${mid}] (${arr[mid]}) > target (${numericTarget}). Target must be on the left. Discarding right half.`,
         codeLine: 6,
         action: 'search-left',
-        metrics: {
-          comparisons,
-          arrayAccesses,
-          divisions,
-          searchSpaceRemaining: (mid - 1) - low + 1,
-          swaps: 0,
-          shifts: 0,
-        },
       })
       high = mid - 1
     }
@@ -177,17 +124,9 @@ export function generateBinarySearchSteps(initialArray, target) {
       foundIndex: null,
       notFound: true,
       eliminated: allIndices,
-      explanation: `Search space exhausted (low > high). Target ${numericTarget} does not exist in array.`,
+      explanation: `Search space exhausted (low > high). Target ${numericTarget} does not exist in this array.`,
       codeLine: 7,
       action: 'not-found',
-      metrics: {
-        comparisons,
-        arrayAccesses,
-        divisions,
-        searchSpaceRemaining: 0,
-        swaps: 0,
-        shifts: 0,
-      },
     })
   }
 

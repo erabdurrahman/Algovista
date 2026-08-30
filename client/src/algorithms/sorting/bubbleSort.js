@@ -1,17 +1,12 @@
 /**
- * Bubble Sort Step Generator with Live Metrics
- * Repeatedly compares adjacent elements and swaps them if out of order.
+ * Bubble Sort Step Generator
+ * Repeatedly steps through the list, compares adjacent elements and swaps them if they are in the wrong order.
  */
 export function generateBubbleSortSteps(initialArray) {
   const steps = []
   const arr = [...initialArray]
   const n = arr.length
   const sortedIndices = []
-
-  let comparisons = 0
-  let swaps = 0
-  let shifts = 0
-  let arrayAccesses = 0
 
   // Initial step
   steps.push({
@@ -22,12 +17,6 @@ export function generateBubbleSortSteps(initialArray) {
     explanation: `Starting Bubble Sort with ${n} elements.`,
     codeLine: 1,
     action: 'init',
-    metrics: {
-      comparisons,
-      swaps,
-      shifts,
-      arrayAccesses,
-    },
   })
 
   for (let i = 0; i < n - 1; i++) {
@@ -41,18 +30,9 @@ export function generateBubbleSortSteps(initialArray) {
       explanation: `Pass ${i + 1}: Checking elements from index 0 to ${n - i - 2}.`,
       codeLine: 2,
       action: 'pass-start',
-      metrics: {
-        comparisons,
-        swaps,
-        shifts,
-        arrayAccesses,
-      },
     })
 
     for (let j = 0; j < n - i - 1; j++) {
-      comparisons++
-      arrayAccesses += 2 // read arr[j] and arr[j+1]
-
       // Comparison step
       steps.push({
         array: [...arr],
@@ -62,12 +42,6 @@ export function generateBubbleSortSteps(initialArray) {
         explanation: `Comparing arr[${j}] (${arr[j]}) and arr[${j + 1}] (${arr[j + 1]}).`,
         codeLine: 3,
         action: 'compare',
-        metrics: {
-          comparisons,
-          swaps,
-          shifts,
-          arrayAccesses,
-        },
       })
 
       if (arr[j] > arr[j + 1]) {
@@ -76,8 +50,6 @@ export function generateBubbleSortSteps(initialArray) {
         arr[j] = arr[j + 1]
         arr[j + 1] = temp
         hasSwapped = true
-        swaps++
-        arrayAccesses += 4 // 2 reads for temp and swap + 2 writes
 
         steps.push({
           array: [...arr],
@@ -87,12 +59,6 @@ export function generateBubbleSortSteps(initialArray) {
           explanation: `${arr[j + 1]} > ${arr[j]}, so we swap them.`,
           codeLine: 4,
           action: 'swap',
-          metrics: {
-            comparisons,
-            swaps,
-            shifts,
-            arrayAccesses,
-          },
         })
       } else {
         steps.push({
@@ -103,33 +69,23 @@ export function generateBubbleSortSteps(initialArray) {
           explanation: `${arr[j]} <= ${arr[j + 1]}, no swap needed.`,
           codeLine: 3,
           action: 'no-swap',
-          metrics: {
-            comparisons,
-            swaps,
-            shifts,
-            arrayAccesses,
-          },
         })
       }
     }
 
+    // Element at n - i - 1 is now in its final sorted position
     sortedIndices.push(n - i - 1)
     steps.push({
       array: [...arr],
       comparing: [],
       swapped: false,
       sortedIndices: [...sortedIndices],
-      explanation: `Element ${arr[n - i - 1]} is placed at its sorted position (index ${n - i - 1}).`,
+      explanation: `Element ${arr[n - i - 1]} is now placed at its sorted position (index ${n - i - 1}).`,
       codeLine: 2,
       action: 'placed',
-      metrics: {
-        comparisons,
-        swaps,
-        shifts,
-        arrayAccesses,
-      },
     })
 
+    // If no two elements were swapped by inner loop, then break
     if (!hasSwapped) {
       steps.push({
         array: [...arr],
@@ -139,17 +95,12 @@ export function generateBubbleSortSteps(initialArray) {
         explanation: 'No swaps occurred during this pass. The array is already sorted!',
         codeLine: 6,
         action: 'early-exit',
-        metrics: {
-          comparisons,
-          swaps,
-          shifts,
-          arrayAccesses,
-        },
       })
       break
     }
   }
 
+  // Mark all indices as sorted at completion
   const allSorted = Array.from({ length: n }, (_, idx) => idx)
   steps.push({
     array: [...arr],
@@ -159,12 +110,6 @@ export function generateBubbleSortSteps(initialArray) {
     explanation: 'Bubble Sort complete! All elements are sorted in ascending order.',
     codeLine: 7,
     action: 'complete',
-    metrics: {
-      comparisons,
-      swaps,
-      shifts,
-      arrayAccesses,
-    },
   })
 
   return steps

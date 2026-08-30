@@ -3,11 +3,6 @@ const mysql = require('mysql2/promise')
 let pool = null
 let isConnected = false
 
-const isLocalhost =
-  !process.env.DB_HOST ||
-  process.env.DB_HOST === 'localhost' ||
-  process.env.DB_HOST === '127.0.0.1'
-
 const dbConfig = {
   host: process.env.DB_HOST || 'localhost',
   port: Number(process.env.DB_PORT) || 3306,
@@ -17,13 +12,6 @@ const dbConfig = {
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
-  ...(isLocalhost
-    ? {}
-    : {
-        ssl: {
-          rejectUnauthorized: false,
-        },
-      }),
 }
 
 // Initial algorithms seed data
@@ -81,21 +69,16 @@ const initialAlgorithms = [
 
 const initDB = async () => {
   try {
-    // 1. If local, create database if not exists
-    if (isLocalhost) {
-      try {
-        const serverConnection = await mysql.createConnection({
-          host: dbConfig.host,
-          port: dbConfig.port,
-          user: dbConfig.user,
-          password: dbConfig.password,
-        })
-        await serverConnection.query(`CREATE DATABASE IF NOT EXISTS \`${dbConfig.database}\`;`)
-        await serverConnection.end()
-      } catch (localDbErr) {
-        console.warn('Local DB create step skipped:', localDbErr.message)
-      }
-    }
+    // 1. Check server connection and create database if not exists
+    const serverConnection = await mysql.createConnection({
+      host: dbConfig.host,
+      port: dbConfig.port,
+      user: dbConfig.user,
+      password: dbConfig.password,
+    })
+
+    await serverConnection.query(`CREATE DATABASE IF NOT EXISTS \`${dbConfig.database}\`;`)
+    await serverConnection.end()
 
     // 2. Initialize connection pool targeting the database
     pool = mysql.createPool(dbConfig)
@@ -154,6 +137,7 @@ const initDB = async () => {
   } catch (error) {
     isConnected = false
     console.warn('⚠️ [Database Notice] MySQL connection failed:', error.message)
+    console.warn('💡 If using XAMPP, ensure MySQL is started in the XAMPP Control Panel.')
     return false
   }
 }

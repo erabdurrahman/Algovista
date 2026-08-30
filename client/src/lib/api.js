@@ -42,14 +42,14 @@ export const api = {
 
   // Progress Tracking
   async getProgress(token) {
-    const response = await fetch(`${API_BASE}/api/progress`, {
+    const response = await fetch('/api/progress', {
       headers: authHeaders(token),
     })
     return asJson(response)
   },
 
   async updateProgress(token, payload) {
-    const response = await fetch(`${API_BASE}/api/progress/update`, {
+    const response = await fetch('/api/progress/update', {
       method: 'POST',
       headers: authHeaders(token),
       body: JSON.stringify(payload),
@@ -59,7 +59,7 @@ export const api = {
 
   // AI Explainer
   async explain(payload) {
-    const response = await fetch(`${API_BASE}/api/ai/explain`, {
+    const response = await fetch('/api/ai/explain', {
       method: 'POST',
       headers: authHeaders(),
       body: JSON.stringify(payload),
@@ -69,7 +69,7 @@ export const api = {
 
   // Algorithms
   async getAlgorithms() {
-    const response = await fetch(`${API_BASE}/api/algorithms`)
+    const response = await fetch('/api/algorithms')
     return asJson(response)
   },
 }

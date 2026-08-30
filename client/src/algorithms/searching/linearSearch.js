@@ -1,16 +1,12 @@
 /**
- * Linear Search Step Generator with Live Metrics
- * Sequentially checks each array element against the target value.
+ * Linear Search Step Generator
+ * Sequentially compares each element of the array with the target value.
  */
 export function generateLinearSearchSteps(initialArray, target) {
   const steps = []
   const arr = [...initialArray]
   const n = arr.length
   const numericTarget = Number(target)
-
-  let comparisons = 0
-  let arrayAccesses = 0
-  let elementsScanned = 0
 
   steps.push({
     array: [...arr],
@@ -21,21 +17,10 @@ export function generateLinearSearchSteps(initialArray, target) {
     explanation: `Starting Linear Search for target value: ${numericTarget}.`,
     codeLine: 1,
     action: 'init',
-    metrics: {
-      comparisons,
-      arrayAccesses,
-      elementsScanned,
-      swaps: 0,
-      shifts: 0,
-    },
   })
 
   let found = false
   for (let i = 0; i < n; i++) {
-    comparisons++
-    arrayAccesses++
-    elementsScanned++
-
     steps.push({
       array: [...arr],
       currentIndex: i,
@@ -45,13 +30,6 @@ export function generateLinearSearchSteps(initialArray, target) {
       explanation: `Checking index ${i}: Is arr[${i}] (${arr[i]}) equal to target (${numericTarget})?`,
       codeLine: 2,
       action: 'compare',
-      metrics: {
-        comparisons,
-        arrayAccesses,
-        elementsScanned,
-        swaps: 0,
-        shifts: 0,
-      },
     })
 
     if (arr[i] === numericTarget) {
@@ -65,13 +43,6 @@ export function generateLinearSearchSteps(initialArray, target) {
         explanation: `Target ${numericTarget} found at index ${i}!`,
         codeLine: 3,
         action: 'found',
-        metrics: {
-          comparisons,
-          arrayAccesses,
-          elementsScanned,
-          swaps: 0,
-          shifts: 0,
-        },
       })
       break
     }
@@ -84,16 +55,9 @@ export function generateLinearSearchSteps(initialArray, target) {
       target: numericTarget,
       foundIndex: null,
       notFound: true,
-      explanation: `Reached end of array. Target ${numericTarget} is not present.`,
+      explanation: `Reached end of array. Target ${numericTarget} is not present in the array.`,
       codeLine: 5,
       action: 'not-found',
-      metrics: {
-        comparisons,
-        arrayAccesses,
-        elementsScanned,
-        swaps: 0,
-        shifts: 0,
-      },
     })
   }
 
