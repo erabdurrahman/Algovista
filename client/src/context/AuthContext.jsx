@@ -10,7 +10,7 @@ const readLocalJson = (key) => {
   try {
     const value = localStorage.getItem(key)
     return value ? JSON.parse(value) : null
-  } catch (_error) {
+  } catch {
     return null
   }
 }
@@ -31,7 +31,7 @@ export function AuthProvider({ children }) {
         const data = await api.me(token)
         setUser(data.user)
         localStorage.setItem(USER_KEY, JSON.stringify(data.user))
-      } catch (_error) {
+      } catch {
         localStorage.removeItem(TOKEN_KEY)
         localStorage.removeItem(USER_KEY)
         setToken('')
@@ -66,6 +66,7 @@ export function AuthProvider({ children }) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 
+// Custom hook to use AuthContext
 export const useAuth = () => {
   const context = useContext(AuthContext)
   if (!context) {
