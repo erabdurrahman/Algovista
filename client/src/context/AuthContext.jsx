@@ -18,31 +18,39 @@ const readLocalJson = (key) => {
 export function AuthProvider({ children }) {
   const [token, setToken] = useState(() => localStorage.getItem(TOKEN_KEY) || '')
   const [user, setUser] = useState(() => readLocalJson(USER_KEY))
-  const [bootstrapping, setBootstrapping] = useState(Boolean(localStorage.getItem(TOKEN_KEY)))
+  const [bootstrapping, setBootstrapping] = useState(false)
 
   useEffect(() => {
     const bootstrap = async () => {
-      if (!token) {
+      const storedToken = localStorage.getItem(TOKEN_KEY)
+      if (!storedToken) {
         setBootstrapping(false)
         return
       }
 
       try {
-        const data = await api.me(token)
-        setUser(data.user)
-        localStorage.setItem(USER_KEY, JSON.stringify(data.user))
-      } catch {
-        localStorage.removeItem(TOKEN_KEY)
-        localStorage.removeItem(USER_KEY)
-        setToken('')
-        setUser(null)
+        const data = await api.me(storedToken)
+        if (data && data.user) {
+          setUser(data.user)
+          localStorage.setItem(USER_KEY, JSON.stringify(data.user))
+        }
+      } catch (err) {
+        // Only clear session if token is explicitly invalid/expired (401/403)
+        const errMsg = (err.message || '').toLowerCase()
+        if (errMsg.includes('token') || errMsg.includes('unauthorized') || errMsg.includes('forbidden')) {
+          localStorage.removeItem(TOKEN_KEY)
+          localStorage.removeItem(USER_KEY)
+          setToken('')
+          setUser(null)
+        }
+        // If it's a network glitch or cold start, keep the local user intact!
       } finally {
         setBootstrapping(false)
       }
     }
 
     bootstrap()
-  }, [token])
+  }, [])
 
   const saveSession = (sessionToken, sessionUser) => {
     setToken(sessionToken)
@@ -59,7 +67,14 @@ export function AuthProvider({ children }) {
   }
 
   const value = useMemo(
-    () => ({ token, user, isAuthenticated: Boolean(token && user), bootstrapping, saveSession, logout }),
+    () => ({
+      token,
+      user,
+      isAuthenticated: Boolean(token && user),
+      bootstrapping,
+      saveSession,
+      logout,
+    }),
     [token, user, bootstrapping],
   )
 
