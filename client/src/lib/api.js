@@ -1,3 +1,5 @@
+const API_BASE = import.meta.env.VITE_API_URL || ''
+
 const asJson = async (response) => {
   const data = await response.json().catch(() => ({}))
   if (!response.ok) {
@@ -8,12 +10,13 @@ const asJson = async (response) => {
 
 const authHeaders = (token) => ({
   'Content-Type': 'application/json',
-  ...(token ? { Authorization: 'JWT ' + token } : {}),
+  ...(token ? { Authorization: `Bearer ${token}` } : {}),
 })
 
 export const api = {
+  // Authentication
   async register(payload) {
-    const response = await fetch('/api/auth/register', {
+    const response = await fetch(`${API_BASE}/api/auth/register`, {
       method: 'POST',
       headers: authHeaders(),
       body: JSON.stringify(payload),
@@ -22,7 +25,7 @@ export const api = {
   },
 
   async login(payload) {
-    const response = await fetch('/api/auth/login', {
+    const response = await fetch(`${API_BASE}/api/auth/login`, {
       method: 'POST',
       headers: authHeaders(),
       body: JSON.stringify(payload),
@@ -31,41 +34,22 @@ export const api = {
   },
 
   async me(token) {
-    const response = await fetch('/api/auth/me', {
+    const response = await fetch(`${API_BASE}/api/auth/me`, {
       headers: authHeaders(token),
     })
     return asJson(response)
   },
 
-  async listTopics() {
-    const response = await fetch('/api/learn/topics')
-    return asJson(response)
-  },
-
+  // Progress Tracking
   async getProgress(token) {
-    const response = await fetch('/api/learn/progress', {
+    const response = await fetch(`${API_BASE}/api/progress`, {
       headers: authHeaders(token),
     })
     return asJson(response)
   },
 
-  async markTopicComplete(token, topicId) {
-    const response = await fetch(`/api/learn/progress/${topicId}/complete`, {
-      method: 'POST',
-      headers: authHeaders(token),
-    })
-    return asJson(response)
-  },
-
-  async listSubmissions(token) {
-    const response = await fetch('/api/learn/submissions', {
-      headers: authHeaders(token),
-    })
-    return asJson(response)
-  },
-
-  async addSubmission(token, payload) {
-    const response = await fetch('/api/learn/submissions', {
+  async updateProgress(token, payload) {
+    const response = await fetch(`${API_BASE}/api/progress/update`, {
       method: 'POST',
       headers: authHeaders(token),
       body: JSON.stringify(payload),
@@ -73,12 +57,19 @@ export const api = {
     return asJson(response)
   },
 
-  async explainCode(token, code) {
-    const response = await fetch('/api/explain', {
+  // AI Explainer
+  async explain(payload) {
+    const response = await fetch(`${API_BASE}/api/ai/explain`, {
       method: 'POST',
-      headers: authHeaders(token),
-      body: JSON.stringify({ code }),
+      headers: authHeaders(),
+      body: JSON.stringify(payload),
     })
+    return asJson(response)
+  },
+
+  // Algorithms
+  async getAlgorithms() {
+    const response = await fetch(`${API_BASE}/api/algorithms`)
     return asJson(response)
   },
 }
